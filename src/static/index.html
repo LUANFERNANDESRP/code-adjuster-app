@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ajustador de Códigos</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: 300;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .main-content {
+            padding: 40px;
+        }
+
+        .input-section {
+            margin-bottom: 30px;
+        }
+
+        .input-section h2 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 1.5rem;
+            font-weight: 500;
+        }
+
+        .textarea-container {
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        textarea {
+            width: 100%;
+            min-height: 200px;
+            padding: 15px;
+            border: 2px solid #e1e5e9;
+            border-radius: 10px;
+            font-size: 14px;
+            font-family: 'Courier New', monospace;
+            resize: vertical;
+            transition: border-color 0.3s ease;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: #4facfe;
+            box-shadow: 0 0 0 3px rgba(79, 172, 254, 0.1);
+        }
+
+        .button-container {
+            text-align: center;
+            margin: 30px 0;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 16px;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+            margin: 0 10px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-clear {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+            box-shadow: 0 4px 15px rgba(255, 107, 107, 0.4);
+        }
+
+        .btn-clear:hover {
+            box-shadow: 0 6px 20px rgba(255, 107, 107, 0.6);
+        }
+
+        .results-section {
+            margin-top: 30px;
+        }
+
+        .results-section h2 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 1.5rem;
+            font-weight: 500;
+        }
+
+        .results-container {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            border: 2px solid #e9ecef;
+        }
+
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .result-item:last-child {
+            border-bottom: none;
+        }
+
+        .original-code {
+            font-family: 'Courier New', monospace;
+            color: #6c757d;
+            flex: 1;
+        }
+
+        .arrow {
+            margin: 0 15px;
+            color: #4facfe;
+            font-weight: bold;
+        }
+
+        .adjusted-code {
+            font-family: 'Courier New', monospace;
+            color: #28a745;
+            font-weight: bold;
+            flex: 1;
+            text-align: right;
+        }
+
+        .stats {
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .stats strong {
+            color: #333;
+            font-size: 1.2rem;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #4facfe;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 15px 0;
+            border: 1px solid #f5c6cb;
+        }
+
+        .success {
+            background: #d4edda;
+            color: #155724;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 15px 0;
+            border: 1px solid #c3e6cb;
+        }
+
+        .copy-btn {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 12px;
+            margin-top: 10px;
+        }
+
+        .copy-btn:hover {
+            background: #218838;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                margin: 10px;
+                border-radius: 10px;
+            }
+
+            .header {
+                padding: 20px;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .main-content {
+                padding: 20px;
+            }
+
+            .result-item {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .arrow {
+                margin: 5px 0;
+                align-self: center;
+            }
+
+            .adjusted-code {
+                text-align: left;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Ajustador de Códigos</h1>
+            <p>Cole seus códigos e ajuste-os para 5 dígitos automaticamente</p>
+        </div>
+
+        <div class="main-content">
+            <div class="input-section">
+                <h2>📝 Cole seus códigos aqui</h2>
+                <div class="textarea-container">
+                    <textarea 
+                        id="codesInput" 
+                        placeholder="Cole seus códigos aqui, um por linha:&#10;&#10;Exemplo:&#10;1234&#10;A567&#10;B89&#10;12345&#10;C123"
+                    ></textarea>
+                </div>
+                
+                <div class="button-container">
+                    <button class="btn" onclick="adjustCodes()">
+                        ✨ Ajustar Códigos
+                    </button>
+                    <button class="btn btn-clear" onclick="clearAll()">
+                        🗑️ Limpar Tudo
+                    </button>
+                </div>
+            </div>
+
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <p>Processando códigos...</p>
+            </div>
+
+            <div id="errorMessage"></div>
+            <div id="successMessage"></div>
+
+            <div class="results-section" id="resultsSection" style="display: none;">
+                <h2>📊 Resultados</h2>
+                <div id="stats"></div>
+                <div class="results-container" id="resultsContainer">
+                </div>
+                <button class="copy-btn" onclick="copyResults()">
+                    📋 Copiar Códigos Ajustados
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentResults = [];
+
+        function showLoading() {
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('resultsSection').style.display = 'none';
+            clearMessages();
+        }
+
+        function hideLoading() {
+            document.getElementById('loading').style.display = 'none';
+        }
+
+        function showError(message) {
+            const errorDiv = document.getElementById('errorMessage');
+            errorDiv.innerHTML = `<div class="error">❌ ${message}</div>`;
+        }
+
+        function showSuccess(message) {
+            const successDiv = document.getElementById('successMessage');
+            successDiv.innerHTML = `<div class="success">✅ ${message}</div>`;
+        }
+
+        function clearMessages() {
+            document.getElementById('errorMessage').innerHTML = '';
+            document.getElementById('successMessage').innerHTML = '';
+        }
+
+        async function adjustCodes() {
+            const input = document.getElementById('codesInput').value.trim();
+            
+            if (!input) {
+                showError('Por favor, cole alguns códigos para ajustar.');
+                return;
+            }
+
+            showLoading();
+
+            try {
+                const response = await fetch('/api/adjust-codes-text', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ text: input })
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.error || 'Erro ao processar códigos');
+                }
+
+                currentResults = data.results;
+                displayResults(data);
+                showSuccess(`${data.total_processed} códigos processados com sucesso!`);
+
+            } catch (error) {
+                showError(`Erro: ${error.message}`);
+            } finally {
+                hideLoading();
+            }
+        }
+
+        function displayResults(data) {
+            const resultsSection = document.getElementById('resultsSection');
+            const statsDiv = document.getElementById('stats');
+            const resultsContainer = document.getElementById('resultsContainer');
+
+            // Mostrar estatísticas
+            statsDiv.innerHTML = `
+                <div class="stats">
+                    <strong>${data.total_processed}</strong> códigos processados
+                </div>
+            `;
+
+            // Mostrar resultados
+            resultsContainer.innerHTML = '';
+            data.results.forEach(result => {
+                const resultItem = document.createElement('div');
+                resultItem.className = 'result-item';
+                resultItem.innerHTML = `
+                    <div class="original-code">${result.original || '(vazio)'}</div>
+                    <div class="arrow">→</div>
+                    <div class="adjusted-code">${result.adjusted}</div>
+                `;
+                resultsContainer.appendChild(resultItem);
+            });
+
+            resultsSection.style.display = 'block';
+        }
+
+        function copyResults() {
+            if (currentResults.length === 0) {
+                showError('Nenhum resultado para copiar.');
+                return;
+            }
+
+            const adjustedCodes = currentResults.map(result => result.adjusted).join('\n');
+            
+            navigator.clipboard.writeText(adjustedCodes).then(() => {
+                showSuccess('Códigos ajustados copiados para a área de transferência!');
+            }).catch(() => {
+                // Fallback para navegadores mais antigos
+                const textArea = document.createElement('textarea');
+                textArea.value = adjustedCodes;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+                showSuccess('Códigos ajustados copiados para a área de transferência!');
+            });
+        }
+
+        function clearAll() {
+            document.getElementById('codesInput').value = '';
+            document.getElementById('resultsSection').style.display = 'none';
+            currentResults = [];
+            clearMessages();
+        }
+
+        // Permitir ajustar códigos com Ctrl+Enter
+        document.getElementById('codesInput').addEventListener('keydown', function(e) {
+            if (e.ctrlKey && e.key === 'Enter') {
+                adjustCodes();
+            }
+        });
+    </script>
+</body>
+</html>
